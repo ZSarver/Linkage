@@ -8,6 +8,23 @@ def singleton(cls):
     instance.__call__ = lambda: instance
     return instance
 
+def dispatch_events(events):
+    for event in events:
+        #gamepad event
+        if event.type == JOYAXISMOTION or event.type == JOYBALLMOTION or event.type == JOYBUTTONDOWN or event.type == JOYBUTTONUP or event.type == JOYHATMOTION:
+            handle_joystick_event(event)
+        if event.type == QUIT:
+            exit()
+    
+def handle_joystick_event(event):
+    game = Game() #grab the game object
+    if event.joy == game.player1.joyid:
+        if event.type == JOYAXISMOTION:
+            print "blah"
+    if event.joy == game.player2.joyid:
+        if event.type == JOYAXISMOTION:
+            print "blah"
+
 @singleton
 class Game:
     """The Game class is the uberclass that manages game state. It's
@@ -49,10 +66,14 @@ def main():
     gamepads = [pygame.joystick.Joystick(x) for x in
         range(pygame.joystick.get_count())]
 
-    player1 = Player(gamepade[0].get_id())
-    if pygame.joystick.get_count() > 1:
-        player2 = Player(gamepads[1].get_id())
+    if len(gamepads) > 0:
+        player1 = Player(gamepads[0].get_id())
+        if pygame.joystick.get_count() > 1:
+            player2 = Player(gamepads[1].get_id())
+        else:
+            player2 = Player(None)
     else:
+        player1 = Player(None)
         player2 = Player(None)
 
     game = Game()
@@ -62,21 +83,10 @@ def main():
     while True:
         #process events
         dispatch_events(pygame.event.get())
+        pygame.event.pump()
         #get input
         #perform game logic
         #output graphics
 
-def dispatch_event(events):
-    for event in events:
-        #gamepad event
-        if event.type == JOYAXISMOTION or event.type == JOYBALLMOTION or event.type == JOYBUTTONDOWN or event.type == JOYBUTTONUP or event.type == JOYHATMOTION:
-            handle_joystick_event(event)
-    
-def handle_joystick_event(event):
-    game = Game() #grab the game object
-    if event.joy == game.player1.joyid:
-        if event.type == JOYAXISMOTION:
-            print "blah"
-    if event.joy == game.player2.joyid:
-        if event.type == JOYAXISMOTION:
-            print "blah"
+if __name__ == "__main__":
+    main()
