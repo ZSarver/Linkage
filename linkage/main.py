@@ -69,13 +69,14 @@ def main():
 def dispatch_event(events):
     for event in events:
         #gamepad event
-        if event.type == JOYAXISMOTION or event.type == JOYBALLMOTION
-        or event.type == JOYBUTTONDOWN or event.type == JOYBUTTONUP or event.type == JOYHATMOTION:
+        if event.type == JOYAXISMOTION or event.type == JOYBALLMOTION or event.type == JOYBUTTONDOWN or event.type == JOYBUTTONUP or event.type == JOYHATMOTION:
             handle_joystick_event(event)
     
 def handle_joystick_event(event):
     game = Game() #grab the game object
     if event.joy == game.player1.joyid:
         if event.type == JOYAXISMOTION:
+            print "blah"
     if event.joy == game.player2.joyid:
         if event.type == JOYAXISMOTION:
+            print "blah"
