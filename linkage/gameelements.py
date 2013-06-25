@@ -19,3 +19,23 @@ class Gameboard:
             self.board.append([])
             for j in range(15):
                 self.board[i].append(Cell())
+
+
+def neighbor((x,y),direction):
+#(x,y) is a board position
+#direction is a number 0-5
+#.01
+#5X2
+#43.
+	if direction == 0:
+		return (x,y-1)
+	elif direction == 1:
+		return (x+1,y-1)
+	elif direction == 2:
+		return (x+1,y)
+	elif direction == 3:
+		return (x,y+1)
+	elif direction == 4:
+		return (x-1,y+1)
+	elif direction == 5:
+		return (x-1,y)
