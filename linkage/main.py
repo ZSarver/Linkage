@@ -1,6 +1,8 @@
 import pygame
 from pygame.locals import *
 
+from gameelements import *
+
 def singleton(cls):
     """singleton decorator retrieved from
     http://wiki.python.org/moin/PythonDecoratorLibrary#Singleton."""
@@ -41,6 +43,8 @@ class Game:
     method (so that when a "new" instance is created, our data is not
     overwritten,) and our actually init function needs to be something
     else."""
+    def new(self):
+        self.board = Gameboard()
     def add_players(self, player1, player2):
         self.player1 = player1
         self.player2 = player2
@@ -49,11 +53,26 @@ class Player:
     """The Player class is the data structure for housing all the data
     pertaining to players themselves: score, territory, joystick id,
     etc."""
+    mouse = 0
+    other = 1
     def __init__(self, joyid):
         self.joyid = joyid
         self.score = 0
         self.territory = None #we don't yet have a territory data
         #structure
+        #we need a convenient way of locking the cursor to the
+        #relevant parts of the UI if the player is using a gamepad
+        #or keyboard. Here's a first attempt
+        self.cursor = Cursor()
+        
+
+class Cursor:
+    """The Cursor class keeps track of where the player is pointing."""
+    def __init__(self):
+        self.screenpos = Rect(320,240,0,0)
+        self.boardpos = [0,0]
+        self.uilock = False #whether the cursor is currently locked to
+        #the ui. False by default
 
 def main():
     pygame.init()
@@ -77,6 +96,7 @@ def main():
         player2 = Player(None)
 
     game = Game()
+    game.new()
     game.add_players(player1, player2)
 
     #main loop
