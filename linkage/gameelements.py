@@ -12,16 +12,21 @@ class Cell:
     same as the edge [3,0].
 
     """
-    #          0 : "Asterisk"      1 : "Asteroid"          2 : "X"        3 : "bball court"     4 : "bball"
     cells = [[(0,3),(1,4),(2,5)],[(1,2),(3,4),(5,0)],[(2,3),(4,0),(5,1)],[(0,3),(1,2),(4,5)],[(0,2),(1,4),(3,5)]]
-
-    #cell ownership
-    #   0  : "blocked"
-    #   1  : "neutral"
-    #   2  : "player 1"
-    #   3  : "player 2"
+    #ownership "enum"
+    blocked = 0
+    neutral = 1
+    player_1 = 2
+    player_2 = 3
+    #cell type "enum"
+    asterisk = 0
+    asteroid = 1
+    x = 2
+    bball_court = 3
+    bball = 4
     def __init__(self, cellid = 0):
         self.cell = self.cells[cellid]
+        self.ownership = self.blocked
     def rotate_clockwise(self):
         """Rotating clockwise is the same as adding 1 (mod 5) to 
         each vertex in each edge of a cell."""
@@ -52,24 +57,31 @@ class Gameboard:
         for i in range(7):
             self.board.append([])
             for j in range(15):
-                self.board[i].append(Cell())
+                self.board[i].append(Cell())                
+        #apply ownership
+        for i in range(len(self.board)):
+            for j in range(len(self.board[i])):
+                self.board[i][j].ownership = self.initial_ownership[i][j]
+    
+    def neighbor((x,y),direction):
+        """neighbor, when given a board position as a 2-tuple, returns the
+        position of the neighbor given by the following direction table:
 
-
-def neighbor((x,y),direction):
-#(x,y) is a board position
-#direction is a number 0-5
-#.01
-#5X2
-#43.
-    if direction == 0:
-        return (x,y-1)
-    elif direction == 1:
-        return (x+1,y-1)
-    elif direction == 2:
-        return (x+1,y)
-    elif direction == 3:
-        return (x,y+1)
-    elif direction == 4:
-        return (x-1,y+1)
-    elif direction == 5:
-        return (x-1,y)
+        (x,y) is a board position
+        direction is a number 0-5
+        .01
+        5X2
+        43.
+        """
+        if direction == 0:
+            return (x,y-1)
+        elif direction == 1:
+            return (x+1,y-1)
+        elif direction == 2:
+            return (x+1,y)
+        elif direction == 3:
+            return (x,y+1)
+        elif direction == 4:
+            return (x-1,y+1)
+        elif direction == 5:
+            return (x-1,y)
