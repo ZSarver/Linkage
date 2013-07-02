@@ -69,10 +69,40 @@ class Player:
 class Cursor:
     """The Cursor class keeps track of where the player is pointing."""
     def __init__(self):
-        self.screenpos = Rect(320,240,0,0)
-        self.boardpos = [0,0]
-        self.uilock = False #whether the cursor is currently locked to
+        self._screenpos = Rect(320,240,0,0)
+        self._boardpos = [0,0]
+        self._uilock = False #whether the cursor is currently locked to
         #the ui. False by default
+        self._dirty = True
+
+    def draw(self):
+        if uilock:
+            #erase mouse cursor
+        if not uilock:
+            #draw mouse cursor 
+        #hilight correct cell on gameboard
+        self.clean()
+    
+    def clean(self):
+        self._dirty = False
+
+    @property
+    def screenpos(self):
+        return self._screenpos
+
+    @screenpos.setter
+    def screenpos(self, value):
+        self._dirty = True
+        self._screenpos = value
+
+    @property
+    def boardpos(self):
+        return self._boardpos
+    
+    @boardpos.setter
+    def boardpos(self, value):
+        self._dirty = True
+        self._boardpos = value
 
 def main():
     pygame.init()
