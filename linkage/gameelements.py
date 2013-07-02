@@ -69,7 +69,11 @@ class Cell:
                 self.cell[i][j] = (self.cell[i][j]-1) % 5
 
 class Gameboard:
-    """The gameboard is basically a 9 x 17 array of cells."""
+    """The gameboard is basically a 9 x 17 array of cells.
+
+    margins is a pair of floats [horizontal,vertical], where 0 \leq horizontal < 1
+    is the percentage of the screen to reserve for the horizontal margins, and
+    likewise for vertical."""
     initial_ownership = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                          [0,0,0,0,2,2,2,2,1,1,1,1,3,3,3,3,0],
                          [0,0,0,2,2,2,2,2,1,1,1,3,3,3,3,3,0],
@@ -106,6 +110,8 @@ class Gameboard:
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
                 self.board[i][j].ownership = self.initial_ownership[i][j]
+
+        self.margins = [0.0,0.0]
     
     def neighbor((x,y),direction):
         """neighbor, when given a board position as a 2-tuple, returns the
