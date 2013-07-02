@@ -6,11 +6,11 @@ def draw_hexagon(surface, x, y, r, color, border_color):
     r = min{d(x,center) : x \in border} and
     color and border_color are (R,G,B) triples
     """
-    points = [(int(float(x) + float(r)/sqrt(3)),y-r),
-              (int(float(x) + float(r) * (sqrt(3)/2.0)), y),
-              (int(float(x) + float(r)/sqrt(3)),y+r),
-              (int(float(x) - float(r)/sqrt(3)),y+r),
-              (int(float(x) - float(r) * (sqrt(3)/2.0)), y),
-              (int(float(x) - float(r)/sqrt(3)),y-r)]
+    points = [(x+r, int(float(y) - float(r)/sqrt(3))),
+              (x+r, int(float(y) + float(r)/sqrt(3))),
+              (x, int(float(y) - float(r) * (2.0/sqrt(3)))),
+              (x-r, int(float(y) + float(r)/sqrt(3))),
+              (x-r, int(float(y) - float(r)/sqrt(3))),
+              (x, int(float(y) + float(r) * (2.0/sqrt(3))))]
     filled_polygon(surface, points, color)
     aapolygon(surface, points, border_color)
