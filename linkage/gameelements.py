@@ -25,8 +25,35 @@ class Cell:
     bball_court = 3
     bball = 4
     def __init__(self, cellid = 0):
-        self.cell = self.cells[cellid]
-        self.ownership = self.blocked
+        self._cell = self.cells[cellid]
+        self._ownership = self.blocked
+        self._dirty = True
+
+    #The following methods are getters and setters that flip the
+    #dirty bit of the cell automatically when certain variables
+    #are accessed
+    @property
+    def cell(self):
+        return self._cell
+        
+    @cell.setter
+    def cell(self, value):
+        self._dirty = True
+        self._cell = value
+
+    @property
+    def ownership(self):
+        return self._ownership
+
+    @ownership.setter
+    def ownership(self, value):
+        self._dirty = True
+        self._ownership = value
+
+    def clean(self):
+        """Sets the dirty bit to false."""
+        self._dirty = False
+
     def rotate_clockwise(self):
         """Rotating clockwise is the same as adding 1 (mod 5) to 
         each vertex in each edge of a cell."""
