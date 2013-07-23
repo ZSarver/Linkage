@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 
 from gameelements import *
+from drawing import draw_hexagon
 
 def singleton(cls):
     """singleton decorator retrieved from
@@ -43,8 +44,8 @@ class Game:
     method (so that when a "new" instance is created, our data is not
     overwritten,) and our actually init function needs to be something
     else."""
-    def new(self):
-        self.board = Gameboard()
+    def new(self, surface):
+        self.board = Gameboard(surface)
     def add_players(self, player1, player2):
         self.player1 = player1
         self.player2 = player2
@@ -75,13 +76,13 @@ class Cursor:
         #the ui. False by default
         self._dirty = True
 
-    def draw(self):
-        if uilock:
+    # def draw(self):
+        # if uilock:
             #erase mouse cursor
-        if not uilock:
+		# else:
             #draw mouse cursor 
         #hilight correct cell on gameboard
-        self.clean()
+        # self.clean()
     
     def clean(self):
         self._dirty = False
@@ -126,9 +127,10 @@ def main():
         player2 = Player(None)
 
     game = Game()
-    game.new()
+    game.new(screen)
     game.add_players(player1, player2)
 
+    game.board.draw()
     #main loop
     while True:
         #process events
@@ -137,6 +139,7 @@ def main():
         #get input
         #perform game logic
         #output graphics
+        
 
 if __name__ == "__main__":
     main()

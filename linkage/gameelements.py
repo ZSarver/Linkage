@@ -1,3 +1,6 @@
+from drawing import draw_hexagon
+from math import sqrt
+
 class Cell:
     """Cells are the principal components of Gameboards. Each cell
     is actually a graph, with the exits being vertices and the paths
@@ -50,16 +53,14 @@ class Cell:
     def ownership(self, value):
         self._dirty = True
         self._ownership = value
+        
+    @property
+    def dirty(self):
+        return self._dirty
 
     def clean(self):
         """Sets the dirty bit to false."""
         self._dirty = False
-
-    def draw(self, surface, x, y, r):
-        color = (255,0,0)
-        border_color = (0,0,255)
-        draw_hexagon(surface, x, y, r, color, border_color)
-        self.clean()
 
     def rotate_clockwise(self):
         """Rotating clockwise is the same as adding 1 (mod 6) to 
@@ -73,7 +74,18 @@ class Cell:
         for i in range(len(self.cell)):
             for j in range(2):
                 self.cell[i][j] = (self.cell[i][j]-1) % 6
-
+				
+    def draw(self, surface, x, y, radius):
+        if self.ownership == self.blocked:
+            draw_hexagon(surface, x, y, radius, (127, 127, 127), (255, 255, 255))
+        if self.ownership == self.neutral:
+            draw_hexagon(surface, x, y, radius, (0, 0, 0), (255, 255, 255))
+        if self.ownership == self.player_1:
+            draw_hexagon(surface, x, y, radius, (255, 0, 0), (255, 255, 255))
+        if self.ownership == self.player_2:
+            draw_hexagon(surface, x, y, radius, (0, 255, 0), (255, 255, 255))        
+        self.clean()
+        
 class Gameboard:
     """The gameboard is basically a 9 x 17 array of cells.
 
@@ -108,8 +120,8 @@ class Gameboard:
     
     def __init__(self, surface = None):
         self.board = []
-        assert(surface is not None)
         self.surface = surface
+        assert(surface is not None)
         for i in range(9):
             self.board.append([])
             for j in range(17):
@@ -121,10 +133,11 @@ class Gameboard:
                 #place corner cells
                 if self.corner_cell_locations[i][j] != 0:
                     self.board[i][j].cell = self.corner_cells[self.corner_cell_locations[i][j]]
-        self.margins = [10.0,10.0]
-        self.cellradius = 5.0
+        self.margins = [14,14]
+        self.cellradius = 14
     
     def draw(self):
+        r = 14
         for i in range(9):
             for j in range(17):
                 if self.board[i][j].dirty:
@@ -132,7 +145,7 @@ class Gameboard:
                     #    v1 = < 2 * r, 0 >
                     #    v2 = < r , r * sqrt(3) >
                     x = 2 * r * i + r * j + self.margins[0]
-                    y = float(r) * sqrt(3) + self.margins[1]
+                    y = float(r) * sqrt(3) * j + self.margins[1]
                     self.board[i][j].draw(self.surface,x,y,self.cellradius)
         
     def neighbor((x,y),direction):
