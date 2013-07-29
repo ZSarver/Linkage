@@ -76,14 +76,10 @@ class Cell:
                 self.cell[i][j] = (self.cell[i][j]-1) % 6
 				
     def draw(self, surface, x, y, radius):
-        if self.ownership == self.blocked:
-            draw_hexagon(surface, x, y, radius, (127, 127, 127), (255, 255, 255))
-        if self.ownership == self.neutral:
-            draw_hexagon(surface, x, y, radius, (0, 0, 0), (255, 255, 255))
-        if self.ownership == self.player_1:
-            draw_hexagon(surface, x, y, radius, (255, 0, 0), (255, 255, 255))
-        if self.ownership == self.player_2:
-            draw_hexagon(surface, x, y, radius, (0, 255, 0), (255, 255, 255))        
+        #             blocked,     neutral,    p1,        p2
+        colors = [(30, 30, 30), (180,133,63), (190,163,63), (205, 133, 93)]
+        outline_color = (0, 0, 0)
+        draw_hexagon(surface, x, y, radius, colors[self.ownership], outline_color)
         self.clean()
         
 class Gameboard:
@@ -133,20 +129,21 @@ class Gameboard:
                 #place corner cells
                 if self.corner_cell_locations[i][j] != 0:
                     self.board[i][j].cell = self.corner_cells[self.corner_cell_locations[i][j]]
-        self.margins = [14,14]
-        self.cellradius = 14
+        self.margins = [-40,110]
+        self.cellradius = 18
     
     def draw(self):
-        r = 14
+        r = self.cellradius
         for i in range(9):
             for j in range(17):
                 if self.board[i][j].dirty:
                     #The offsets between the centres of adjacent cells are
                     #    v1 = < 2 * r, 0 >
                     #    v2 = < r , r * sqrt(3) >
-                    x = 2 * r * i + r * j + self.margins[0]
-                    y = float(r) * sqrt(3) * j + self.margins[1]
-                    self.board[i][j].draw(self.surface,x,y,self.cellradius)
+                    x = 2 * r * j + r * i + self.margins[0]
+                    y = float(r) * sqrt(3) * i + self.margins[1]
+                    if (i + j >= 4) and (i + j <= 20):
+                        self.board[i][j].draw(self.surface,x,y,self.cellradius)
         
     def neighbor((x,y),direction):
         """neighbor, when given a board position as a 2-tuple, returns the
