@@ -131,6 +131,7 @@ def main():
     game.add_players(player1, player2)
 
     game.board.draw()
+    pygame.display.flip()
     #main loop
     while True:
         #process events

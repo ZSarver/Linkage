@@ -1,4 +1,4 @@
-from drawing import draw_hexagon
+from drawing import draw_hexagon, draw_arc
 from math import sqrt
 
 class Cell:
@@ -77,9 +77,12 @@ class Cell:
 				
     def draw(self, surface, x, y, radius):
         #             blocked,     neutral,    p1,        p2
-        colors = [(30, 30, 30), (180,133,63), (190,163,63), (205, 133, 93)]
+        colors = [(50, 50, 50), (180,133,63), (190,163,63), (205, 133, 93)]
         outline_color = (0, 0, 0)
         draw_hexagon(surface, x, y, radius, colors[self.ownership], outline_color)
+        arc_color = (0,0,0)
+        for p in self.cell:
+            draw_arc(surface, x, y, radius, p, arc_color)
         self.clean()
         
 class Gameboard:
@@ -88,47 +91,45 @@ class Gameboard:
     margins is a pair of floats [horizontal,vertical], where 0 \leq horizontal < 1
     is the percentage of the screen to reserve for the horizontal margins, and
     likewise for vertical."""
-    initial_ownership = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                         [0,0,0,0,2,2,2,2,1,1,1,1,3,3,3,3,0],
-                         [0,0,0,2,2,2,2,2,1,1,1,3,3,3,3,3,0],
-                         [0,0,2,2,2,2,2,2,1,1,3,3,3,3,3,3,0],
-                         [0,2,2,2,2,2,2,2,1,3,3,3,3,3,3,3,0],
-                         [0,2,2,2,2,2,2,1,1,3,3,3,3,3,3,0,0],
-                         [0,2,2,2,2,2,1,1,1,3,3,3,3,3,0,0,0],
-                         [0,2,2,2,2,1,1,1,1,3,3,3,3,0,0,0,0],
-                         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
-
-    #.xx    ..x    ...    ...   ...   .x.
-    #.1.    .2x    .3x    .4.   x5.   x6. 
-    #...    ...    .x.    xx.   x..   ...
-                         
-    corner_cells = [[],[(0,1)],[(1,2)],[(2,3)],[(3,4)],[(4,5)],[(5,0)]]
-
-    corner_cell_locations = [[0,0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,0],
-                             [0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,5],
-                             [0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
-                             [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
-                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-                             [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0],
-                             [2,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0],
-                             [2,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0],
-                             [0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0]]
-    
     def __init__(self, surface = None):
         self.board = []
         self.surface = surface
         assert(surface is not None)
+
+        
         for i in range(9):
             self.board.append([])
             for j in range(17):
                 self.board[i].append(Cell())                
-        #apply ownership
+        #apply ownership and place corners
+        initial_ownership = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+                             [0,0,0,0,2,2,2,2,1,1,1,1,3,3,3,3,0],
+                             [0,0,0,2,2,2,2,2,1,1,1,3,3,3,3,3,0],
+                             [0,0,2,2,2,2,2,2,1,1,3,3,3,3,3,3,0],
+                             [0,2,2,2,2,2,2,2,1,3,3,3,3,3,3,3,0],
+                             [0,2,2,2,2,2,2,1,1,3,3,3,3,3,3,0,0],
+                             [0,2,2,2,2,2,1,1,1,3,3,3,3,3,0,0,0],
+                             [0,2,2,2,2,1,1,1,1,3,3,3,3,0,0,0,0],
+                             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
+        #.xx    ..x    ...    ...   ...   .x.
+        #.1.    .2x    .3x    .4.   x5.   x6. 
+        #...    ...    .x.    xx.   x..   ...
+        corner_cells = [[],[(0,1)],[(1,2)],[(2,3)],[(3,4)],[(4,5)],[(5,0)],[]]
+        corner_cell_locations = [[0,0,0,0,7,4,4,4,4,4,4,4,4,4,4,4,7],
+                                 [0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,5],
+                                 [0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+                                 [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+                                 [7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7],
+                                 [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0],
+                                 [2,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0],
+                                 [2,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0],
+                                 [7,1,1,1,1,1,1,1,1,1,1,1,7,0,0,0,0]]
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
-                self.board[i][j].ownership = self.initial_ownership[i][j]
+                self.board[i][j].ownership = initial_ownership[i][j]
                 #place corner cells
-                if self.corner_cell_locations[i][j] != 0:
-                    self.board[i][j].cell = self.corner_cells[self.corner_cell_locations[i][j]]
+                if corner_cell_locations[i][j] != 0:
+                    self.board[i][j].cell = corner_cells[corner_cell_locations[i][j]]
         self.margins = [-40,110]
         self.cellradius = 18
     
@@ -144,7 +145,7 @@ class Gameboard:
                     y = float(r) * sqrt(3) * i + self.margins[1]
                     if (i + j >= 4) and (i + j <= 20):
                         self.board[i][j].draw(self.surface,x,y,self.cellradius)
-        
+
     def neighbor((x,y),direction):
         """neighbor, when given a board position as a 2-tuple, returns the
         position of the neighbor given by the following direction table:
