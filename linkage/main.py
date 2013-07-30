@@ -140,6 +140,8 @@ def main():
         #get input
         #perform game logic
         #output graphics
+        game.board.draw()
+        pygame.display.flip()
         
 
 if __name__ == "__main__":

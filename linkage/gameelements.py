@@ -53,7 +53,6 @@ class Cell:
     def ownership(self, value):
         self._dirty = True
         self._ownership = value
-        
     @property
     def dirty(self):
         return self._dirty
@@ -61,24 +60,24 @@ class Cell:
     def clean(self):
         """Sets the dirty bit to false."""
         self._dirty = False
-
+        
     def rotate_clockwise(self):
         """Rotating clockwise is the same as adding 1 (mod 6) to 
         each vertex in each edge of a cell."""
         for i in range(len(self.cell)):
             for j in range(2):
                 self.cell[i][j] = (self.cell[i][j]+1) % 6
+                
     def rotate_counterclockwise(self):
         """Rotating counterclockwise is the same as subtracting 1 (mod 6) to
         each vertex in each edge of a cell."""
         for i in range(len(self.cell)):
             for j in range(2):
                 self.cell[i][j] = (self.cell[i][j]-1) % 6
-				
-    def draw(self, surface, x, y, radius):
-        #             blocked,     neutral,    p1,        p2
+                
+    def draw(self, surface, (x, y), radius, outline_color=(0,0,0)):
+        #             blocked,     neutral,       p1,           p2
         colors = [(50, 50, 50), (180,133,63), (190,163,63), (205, 133, 93)]
-        outline_color = (0, 0, 0)
         draw_hexagon(surface, x, y, radius, colors[self.ownership], outline_color)
         arc_color = (0,0,0)
         for p in self.cell:
@@ -91,12 +90,19 @@ class Gameboard:
     margins is a pair of floats [horizontal,vertical], where 0 \leq horizontal < 1
     is the percentage of the screen to reserve for the horizontal margins, and
     likewise for vertical."""
+    #enumerated directions
+    upleft = 0
+    upright = 1
+    right = 2
+    downright = 3
+    downleft = 4
+    left = 5
+    
     def __init__(self, surface = None):
         self.board = []
         self.surface = surface
         assert(surface is not None)
-
-        
+       
         for i in range(9):
             self.board.append([])
             for j in range(17):
@@ -124,6 +130,7 @@ class Gameboard:
                                  [2,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0],
                                  [2,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0],
                                  [7,1,1,1,1,1,1,1,1,1,1,1,7,0,0,0,0]]
+        self.cursor = (4,8)
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
                 self.board[i][j].ownership = initial_ownership[i][j]
@@ -134,18 +141,26 @@ class Gameboard:
         self.cellradius = 18
     
     def draw(self):
+        def drawhelper((i,j), highlight = (0,0,0)):
+            #The offsets between the centres of adjacent cells are
+            #    v1 = < 2 * r, 0 >
+            #    v2 = < r , r * sqrt(3) >
+            x = 2 * r * j + r * i + self.margins[0]
+            y = float(r) * sqrt(3) * i + self.margins[1]
+            self.board[i][j].draw(self.surface,(x,y),self.cellradius, highlight)
         r = self.cellradius
         for i in range(9):
             for j in range(17):
                 if self.board[i][j].dirty:
-                    #The offsets between the centres of adjacent cells are
-                    #    v1 = < 2 * r, 0 >
-                    #    v2 = < r , r * sqrt(3) >
-                    x = 2 * r * j + r * i + self.margins[0]
-                    y = float(r) * sqrt(3) * i + self.margins[1]
                     if (i + j >= 4) and (i + j <= 20):
-                        self.board[i][j].draw(self.surface,x,y,self.cellradius)
-
+                        drawhelper((i,j))
+        drawhelper(self.cursor, (255,255,255))
+    
+    def movecursor(self, direction):
+        (i,j) = neighbor(self.cursor, direction)
+        if self.board[i][j].ownership != Cell.blocked:
+            self.cursor = (i,j)
+    
     def neighbor((x,y),direction):
         """neighbor, when given a board position as a 2-tuple, returns the
         position of the neighbor given by the following direction table:
