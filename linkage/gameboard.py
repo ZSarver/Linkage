@@ -2,6 +2,8 @@
 from drawing import draw_hexagon, draw_arc
 from math import sqrt
 
+import gameelements
+
 class Gameboard:
     """The gameboard is basically a 9 x 17 array of cells.
 
@@ -16,17 +18,7 @@ class Gameboard:
     downleft = 4
     left = 5
     
-    def __init__(self, surface = None):
-        self.board = []
-        self.surface = surface
-        assert(surface is not None)
-       
-        for i in range(9):
-            self.board.append([])
-            for j in range(17):
-                self.board[i].append(Cell())                
-        #apply ownership and place corners
-        initial_ownership = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    initial_ownership = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
                              [0,0,0,0,2,2,2,2,1,1,1,1,3,3,3,3,0],
                              [0,0,0,2,2,2,2,2,1,1,1,3,3,3,3,3,0],
                              [0,0,2,2,2,2,2,2,1,1,3,3,3,3,3,3,0],
@@ -38,23 +30,33 @@ class Gameboard:
         #.xx    ..x    ...    ...   ...   .x.
         #.1.    .2x    .3x    .4.   x5.   x6. 
         #...    ...    .x.    xx.   x..   ...
-        corner_cells = [[],[(0,1)],[(1,2)],[(2,3)],[(3,4)],[(4,5)],[(5,0)],[]]
-        corner_cell_locations = [[0,0,0,0,7,4,4,4,4,4,4,4,4,4,4,4,7],
-                                 [0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,5],
-                                 [0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
-                                 [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
-                                 [7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7],
-                                 [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0],
-                                 [2,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0],
-                                 [2,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0],
-                                 [7,1,1,1,1,1,1,1,1,1,1,1,7,0,0,0,0]]
-        self.cursor = (4,8)
+    corner_cells = [[],[(0,1)],[(1,2)],[(2,3)],[(3,4)],[(4,5)],[(5,0)],[]]
+    corner_cell_locations = [[0,0,0,0,7,4,4,4,4,4,4,4,4,4,4,4,7],
+                             [0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,5],
+                             [0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+                             [0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5],
+                             [7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7],
+                             [2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0],
+                             [2,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0],
+                             [2,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0],
+                             [7,1,1,1,1,1,1,1,1,1,1,1,7,0,0,0,0]]
+    
+    def __init__(self, surface = None):
+        self.board = []
+        self.surface = surface
+        assert(surface is not None)
+       
+        for i in range(9):
+            self.board.append([])
+            for j in range(17):
+                self.board[i].append(Cell())                
+        #apply ownership and place corners
         for i in range(len(self.board)):
             for j in range(len(self.board[i])):
-                self.board[i][j].ownership = initial_ownership[i][j]
+                self.board[i][j].ownership = self.initial_ownership[i][j]
                 #place corner cells
-                if corner_cell_locations[i][j] != 0:
-                    self.board[i][j].cell = corner_cells[corner_cell_locations[i][j]]
+                if self.corner_cell_locations[i][j] != 0:
+                    self.board[i][j].cell = self.corner_cells[self.corner_cell_locations[i][j]]
         self.margins = [-40,110]
         self.cellradius = 18
     
@@ -72,12 +74,9 @@ class Gameboard:
                 if self.board[i][j].dirty:
                     if (i + j >= 4) and (i + j <= 20):
                         drawhelper((i,j))
-        drawhelper(self.cursor, (255,255,255))
-    
-    def movecursor(self, direction):
-        (i,j) = neighbor(self.cursor, direction)
-        if self.board[i][j].ownership != Cell.blocked:
-            self.cursor = (i,j)
+        #get handle to game
+        #game = gameelements.Game()
+        #drawhelper(game.cursor.boardpos, (255,255,255))
     
     def neighbor((x,y),direction):
         """neighbor, when given a board position as a 2-tuple, returns the

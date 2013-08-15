@@ -1,5 +1,6 @@
 import pygame
 from gameboard import *
+from drawing import safeload
 
 def singleton(cls):
     """singleton decorator retrieved from
@@ -26,6 +27,7 @@ class Game:
     else."""
     def new(self, surface):
         self.board = Gameboard(surface)
+        self.cursor = Cursor(surface)
     def add_players(self, player1, player2):
         self.player1 = player1
         self.player2 = player2
@@ -39,27 +41,26 @@ class Player:
     def __init__(self, joyid):
         self.joyid = joyid
         self.score = 0
-        #we need a convenient way of locking the cursor to the
-        #relevant parts of the UI if the player is using a gamepad
-        #or keyboard. Here's a first attempt
-        self.cursor = Cursor()
         
 class Cursor:
-    """The Cursor class keeps track of where the player is pointing."""
-    def __init__(self):
-        self._screenpos = pygame.Rect(320,240,0,0)
-        self._boardpos = [0,0]
+    """The Cursor class keeps track of where the player is pointing.
+    drawsurface is the surface to which the cursor should draw itself,
+    typically the screen."""
+    def __init__(self, drawsurface):
+        self._screenpos = (320,240)
+        self._boardpos = (4,8)
+        self.image = safeload("pointeredited.png")
+        self.drawsurface = drawsurface
+
         self._uilock = False #whether the cursor is currently locked to
         #the ui. False by default
         self._dirty = True
 
-    # def draw(self):
-        # if uilock:
-            #erase mouse cursor
-		# else:
-            #draw mouse cursor 
-        #hilight correct cell on gameboard
-        # self.clean()
+    def draw(self):
+        if self.dirty:
+            self.drawsurface.blit(self.image, self.screenpos)
+            self.clean()
+            print "Drawing cursor to " + str(self.drawsurface) + " at " + str(self.screenpos)
     
     def clean(self):
         self._dirty = False
@@ -81,3 +82,14 @@ class Cursor:
     def boardpos(self, value):
         self._dirty = True
         self._boardpos = value
+
+    @property
+    def dirty(self):
+        return self._dirty
+        
+    def movecursor(self, direction):
+        #get handle to gameboard
+        game = Game()
+        (i,j) = game.board.neightbor(self.boardpos, direction)
+        if game.board[i][j].ownership != Cell.blocked:
+            self.boardpos = (i,j)
