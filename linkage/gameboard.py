@@ -2,9 +2,11 @@
 from drawing import draw_hexagon, draw_arc
 from math import sqrt
 
+import pygame
+
 import gameelements
 
-class Gameboard:
+class Gameboard(object):
     """The gameboard is basically a 9 x 17 array of cells.
 
     margins is a pair of floats [horizontal,vertical], where 0 \leq horizontal < 1
@@ -44,7 +46,9 @@ class Gameboard:
     def __init__(self, surface = None):
         self.board = []
         self.surface = surface
+        self.cleansurface = pygame.Surface(surface.get_size())
         assert(surface is not None)
+        assert(self.cleansurface is not None)
        
         for i in range(9):
             self.board.append([])
@@ -59,24 +63,29 @@ class Gameboard:
                     self.board[i][j].cell = self.corner_cells[self.corner_cell_locations[i][j]]
         self.margins = [-40,110]
         self.cellradius = 18
+        self._dirty = True
     
     def draw(self):
-        def drawhelper((i,j), highlight = (0,0,0)):
-            #The offsets between the centres of adjacent cells are
-            #    v1 = < 2 * r, 0 >
-            #    v2 = < r , r * sqrt(3) >
-            x = 2 * r * j + r * i + self.margins[0]
-            y = float(r) * sqrt(3) * i + self.margins[1]
-            self.board[i][j].draw(self.surface,(x,y),self.cellradius, highlight)
-        r = self.cellradius
-        for i in range(9):
-            for j in range(17):
-                if self.board[i][j].dirty:
+        #draw on a clean surface for the cursor, and then blit to the main 
+        #surface if need be
+        if self.dirty:
+            def drawhelper((i,j), highlight = (0,0,0)):
+                #The offsets between the centres of adjacent cells are
+                #    v1 = < 2 * r, 0 >
+                #    v2 = < r , r * sqrt(3) >
+                x = 2 * r * j + r * i + self.margins[0]
+                y = float(r) * sqrt(3) * i + self.margins[1]
+                self.board[i][j].draw(self.cleansurface,(x,y),self.cellradius, highlight)
+            r = self.cellradius
+            for i in range(9):
+                for j in range(17):
                     if (i + j >= 4) and (i + j <= 20):
                         drawhelper((i,j))
-        #get handle to game
-        #game = gameelements.Game()
-        #drawhelper(game.cursor.boardpos, (255,255,255))
+            self.surface.blit(self.cleansurface, (0,0))
+            self.clean()
+
+    def clean(self):
+        self._dirty = False
     
     def neighbor((x,y),direction):
         """neighbor, when given a board position as a 2-tuple, returns the
@@ -101,7 +110,11 @@ class Gameboard:
         elif direction == 5:
             return (x-1,y)
 
-class Cell:
+    @property
+    def dirty(self):
+        return self._dirty
+
+class Cell(object):
     """Cells are the principal components of Gameboards. Each cell
     is actually a graph, with the exits being vertices and the paths
     being edges.
@@ -176,10 +189,11 @@ class Cell:
                 self.cell[i][j] = (self.cell[i][j]-1) % 6
                 
     def draw(self, surface, (x, y), radius, outline_color=(0,0,0)):
-        #             blocked,     neutral,       p1,           p2
-        colors = [(50, 50, 50), (180,133,63), (190,163,63), (205, 133, 93)]
-        draw_hexagon(surface, x, y, radius, colors[self.ownership], outline_color)
-        arc_color = (0,0,0)
-        for p in self.cell:
-            draw_arc(surface, x, y, radius, p, arc_color)
-        self.clean()
+        if self.dirty:
+            #             blocked,     neutral,       p1,           p2
+            colors = [(50, 50, 50), (180,133,63), (190,163,63), (205, 133, 93)]
+            draw_hexagon(surface, x, y, radius, colors[self.ownership], outline_color)
+            arc_color = (0,0,0)
+            for p in self.cell:
+                draw_arc(surface, x, y, radius, p, arc_color)
+            self.clean()
